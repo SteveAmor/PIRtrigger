@@ -1,5 +1,5 @@
 from creds import TO_EMAIL, FROM_EMAIL, EMAIL_PASS
-from gpiozero import Button
+from gpiozero import Button, LED
 from time import sleep
 import datetime
 import smtplib
@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 lastTriggerDate = "01/01/1970"
 
 pir = Button(21)  # Physical pin 40 (ground it to trigger)
+led = LED(16)     # Physical pin 36
 
 def sendEmail():
 	# Define SMTP email server details
@@ -39,9 +40,15 @@ def sendEmail():
 
 while True:
 	print("Ready...")
+	led.on()
+
 	pir.wait_for_press()
+
+	led.off()
 	print("PIR triggered")
+
 	triggerDate = datetime.datetime.now().strftime('%d/%m/%Y')
+
 	if triggerDate != lastTriggerDate:
 		sendEmail()
 		lastTriggerDate = triggerDate
@@ -49,5 +56,6 @@ while True:
 	else:
 		print("Not the first trigger of the day.  No email sent.  Waiting 60 seconds.")
 
+	led.blink()
 	sleep(60)
 
